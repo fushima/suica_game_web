@@ -8,9 +8,11 @@ interface Ball {
 }
 
 const BALL_CONFIGS = [
-  { radius: 20, color: '#FF6B6B' },  // レベル1: 赤・小
-  { radius: 30, color: '#4ECDC4' },  // レベル2: 青緑・中
-  { radius: 45, color: '#45B7D1' },  // レベル3: 青・大
+  { radius: 25, color: '#FF8A80', pattern: '🍒' },  // レベル1: さくらんぼ
+  { radius: 35, color: '#FFD54F', pattern: '🍋' },  // レベル2: レモン
+  { radius: 45, color: '#FF6E40', pattern: '🍊' },  // レベル3: オレンジ
+  { radius: 55, color: '#E91E63', pattern: '🍑' },  // レベル4: 桃
+  { radius: 70, color: '#4CAF50', pattern: '🍉' },  // レベル5: スイカ
 ];
 
 const SuicaGame: React.FC = () => {
@@ -76,14 +78,14 @@ const SuicaGame: React.FC = () => {
   const dropBall = useCallback(() => {
     if (!canDrop || gameOver || !engineRef.current) return;
     
-    const ball = createBall(dropPosition, 50, nextBallLevel);
+    const ball = createBall(dropPosition, 60, nextBallLevel);
     Matter.World.add(engineRef.current.world, ball.body);
     ballsRef.current.set(ball.body.id, ball);
     
     setCanDrop(false);
     setTimeout(() => {
       setCanDrop(true);
-      setNextBallLevel(Math.floor(Math.random() * 2));
+      setNextBallLevel(Math.floor(Math.random() * 3));
     }, 500);
   }, [canDrop, gameOver, nextBallLevel, dropPosition, createBall]);
 
@@ -91,7 +93,7 @@ const SuicaGame: React.FC = () => {
     const rect = containerRef.current?.getBoundingClientRect();
     if (rect) {
       const x = e.clientX - rect.left;
-      setDropPosition(Math.max(30, Math.min(770, x)));
+      setDropPosition(Math.max(40, Math.min(560, x)));
     }
   }, []);
 
@@ -119,25 +121,26 @@ const SuicaGame: React.FC = () => {
       element: containerRef.current,
       engine: engine,
       options: {
-        width: 800,
-        height: 600,
+        width: 600,
+        height: 500,
         wireframes: false,
         background: '#F8F8F8',
+        showAngleIndicator: false,
       },
     });
     renderRef.current = render;
 
-    const ground = Matter.Bodies.rectangle(400, 590, 800, 20, {
+    const ground = Matter.Bodies.rectangle(300, 490, 600, 20, {
       isStatic: true,
       render: { fillStyle: '#333' },
     });
     
-    const leftWall = Matter.Bodies.rectangle(10, 300, 20, 600, {
+    const leftWall = Matter.Bodies.rectangle(10, 250, 20, 500, {
       isStatic: true,
       render: { fillStyle: '#333' },
     });
     
-    const rightWall = Matter.Bodies.rectangle(790, 300, 20, 600, {
+    const rightWall = Matter.Bodies.rectangle(590, 250, 20, 500, {
       isStatic: true,
       render: { fillStyle: '#333' },
     });
@@ -161,6 +164,33 @@ const SuicaGame: React.FC = () => {
 
     Matter.Events.on(engine, 'afterUpdate', () => {
       checkGameOver();
+    });
+
+    // カスタムレンダリング
+    Matter.Events.on(render, 'afterRender', () => {
+      const context = render.context;
+      const bodies = Matter.Composite.allBodies(engine.world);
+      
+      bodies.forEach(body => {
+        if (body.label.startsWith('ball-')) {
+          const level = parseInt(body.label.split('-')[1]);
+          const config = BALL_CONFIGS[level];
+          
+          if (config && config.pattern) {
+            context.save();
+            context.translate(body.position.x, body.position.y);
+            context.rotate(body.angle);
+            
+            // 果物の絵文字を描画
+            context.font = `${config.radius * 1.5}px Arial`;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(config.pattern, 0, 0);
+            
+            context.restore();
+          }
+        }
+      });
     });
 
     Matter.Render.run(render);
@@ -193,8 +223,14 @@ const SuicaGame: React.FC = () => {
               backgroundColor: BALL_CONFIGS[nextBallLevel].color,
               width: `${BALL_CONFIGS[nextBallLevel].radius * 2}px`,
               height: `${BALL_CONFIGS[nextBallLevel].radius * 2}px`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: `${BALL_CONFIGS[nextBallLevel].radius * 1.5}px`,
             }}
-          />
+          >
+            {BALL_CONFIGS[nextBallLevel].pattern}
+          </div>
         )}
         
         <div
