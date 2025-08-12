@@ -44,7 +44,7 @@ const SuicaGame: React.FC = () => {
     const gameBalls = bodies.filter(body => body.label.startsWith('ball-'));
     
     for (const ball of gameBalls) {
-      if (ball.position.y < 100) {
+      if (ball.position.y < 50 && ball.velocity.y < 0.1) {
         setGameOver(true);
         return true;
       }
