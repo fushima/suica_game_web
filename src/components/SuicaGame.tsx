@@ -184,25 +184,26 @@ const SuicaGame: React.FC = () => {
         <button onClick={resetGame} className="reset-button">リセット</button>
       </div>
       
-      {canDrop && !gameOver && (
-        <div 
-          className="next-ball-preview" 
-          style={{ 
-            left: `${dropPosition - 15}px`,
-            backgroundColor: BALL_CONFIGS[nextBallLevel].color,
-            width: `${BALL_CONFIGS[nextBallLevel].radius}px`,
-            height: `${BALL_CONFIGS[nextBallLevel].radius}px`,
-          }}
+      <div className="game-wrapper">
+        {canDrop && !gameOver && (
+          <div 
+            className="next-ball-preview" 
+            style={{ 
+              left: `${dropPosition}px`,
+              backgroundColor: BALL_CONFIGS[nextBallLevel].color,
+              width: `${BALL_CONFIGS[nextBallLevel].radius * 2}px`,
+              height: `${BALL_CONFIGS[nextBallLevel].radius * 2}px`,
+            }}
+          />
+        )}
+        
+        <div
+          ref={containerRef}
+          onClick={dropBall}
+          onMouseMove={handleMouseMove}
+          className="game-canvas-container"
         />
-      )}
-      
-      <div
-        ref={containerRef}
-        onClick={dropBall}
-        onMouseMove={handleMouseMove}
-        className="game-canvas-container"
-        style={{ position: 'relative', cursor: 'pointer' }}
-      />
+      </div>
       
       {gameOver && (
         <div className="game-over">

@@ -40,17 +40,24 @@
   background-color: #45a049;
 }
 
+.game-wrapper {
+  position: relative;
+  width: 800px;
+}
+
 .next-ball-preview {
   position: absolute;
-  top: 120px;
+  top: -50px;
   border-radius: 50%;
   opacity: 0.7;
   pointer-events: none;
   z-index: 10;
-  transition: left 0.1s ease-out;
+  transition: left 0.05s ease-out;
+  transform: translateX(-50%);
 }
 
 .game-canvas-container {
+  position: relative;
   border: 2px solid #333;
   border-radius: 8px;
   cursor: pointer;
