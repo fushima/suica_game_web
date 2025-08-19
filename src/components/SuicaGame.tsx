@@ -12,8 +12,14 @@ const BALL_CONFIGS = [
   { radius: 35, color: '#FFD54F', pattern: '🍋' },  // レベル2: レモン
   { radius: 45, color: '#FF6E40', pattern: '🍊' },  // レベル3: オレンジ
   { radius: 55, color: '#E91E63', pattern: '🍑' },  // レベル4: 桃
-  { radius: 70, color: '#4CAF50', pattern: '🍉' },  // レベル5: スイカ
+  { radius: 65, color: '#9C27B0', pattern: '🍇' },  // レベル5: ぶどう
+  { radius: 75, color: '#FFC107', pattern: '🍍' },  // レベル6: パイナップル
+  { radius: 85, color: '#8BC34A', pattern: '🍏' },  // レベル7: りんご
+  { radius: 95, color: '#795548', pattern: '🥥' },  // レベル8: ココナッツ
+  { radius: 110, color: '#4CAF50', pattern: '🍉' },  // レベル9: スイカ
 ];
+
+type GameMode = 'normal' | 'moon';
 
 const SuicaGame: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -25,13 +31,19 @@ const SuicaGame: React.FC = () => {
   const [nextBallLevel, setNextBallLevel] = useState(0);
   const [canDrop, setCanDrop] = useState(true);
   const [dropPosition, setDropPosition] = useState(400);
+  const [gameMode, setGameMode] = useState<GameMode>('normal');
+  const [gameStarted, setGameStarted] = useState(false);
 
   const createBall = useCallback((x: number, y: number, level: number): Ball => {
     const config = BALL_CONFIGS[level];
+    const restitution = gameMode === 'moon' ? 0.7 : 0.3;
+    const friction = gameMode === 'moon' ? 0.05 : 0.1;
+    const density = gameMode === 'moon' ? 0.0005 : 0.001;
+    
     const body = Matter.Bodies.circle(x, y, config.radius, {
-      restitution: 0.3,
-      friction: 0.1,
-      density: 0.001,
+      restitution,
+      friction,
+      density,
       label: `ball-${level}`,
       render: {
         fillStyle: config.color,
@@ -39,7 +51,7 @@ const SuicaGame: React.FC = () => {
     });
     
     return { body, level };
-  }, []);
+  }, [gameMode]);
 
   const checkGameOver = useCallback(() => {
     const bodies = Matter.Composite.allBodies(engineRef.current!.world);
@@ -83,11 +95,12 @@ const SuicaGame: React.FC = () => {
     ballsRef.current.set(ball.body.id, ball);
     
     setCanDrop(false);
+    const dropDelay = gameMode === 'moon' ? 800 : 500;
     setTimeout(() => {
       setCanDrop(true);
-      setNextBallLevel(Math.floor(Math.random() * 3));
-    }, 500);
-  }, [canDrop, gameOver, nextBallLevel, dropPosition, createBall]);
+      setNextBallLevel(Math.floor(Math.random() * 5));
+    }, dropDelay);
+  }, [canDrop, gameOver, nextBallLevel, dropPosition, createBall, gameMode]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -108,13 +121,23 @@ const SuicaGame: React.FC = () => {
     setGameOver(false);
     setCanDrop(true);
     setNextBallLevel(0);
+    setGameStarted(false);
+  }, []);
+
+  const startGame = useCallback((mode: GameMode) => {
+    setGameMode(mode);
+    setGameStarted(true);
+    setScore(0);
+    setGameOver(false);
+    setCanDrop(true);
+    setNextBallLevel(0);
   }, []);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !gameStarted) return;
 
     const engine = Matter.Engine.create();
-    engine.gravity.y = 0.6;
+    engine.gravity.y = gameMode === 'moon' ? 0.1 : 0.6;
     engineRef.current = engine;
 
     const render = Matter.Render.create({
@@ -124,7 +147,7 @@ const SuicaGame: React.FC = () => {
         width: 600,
         height: 500,
         wireframes: false,
-        background: '#F8F8F8',
+        background: gameMode === 'moon' ? '#0a0a2e' : '#F8F8F8',
         showAngleIndicator: false,
       },
     });
@@ -205,16 +228,51 @@ const SuicaGame: React.FC = () => {
         render.canvas.remove();
       }
     };
-  }, [mergeBalls, checkGameOver]);
+  }, [mergeBalls, checkGameOver, gameMode, gameStarted]);
+
+  if (!gameStarted) {
+    return (
+      <div className="game-container">
+        <div className="mode-selection">
+          <h1>🍉 スイカゲーム 🍉</h1>
+          <h2>モードを選択してください</h2>
+          <div className="mode-buttons">
+            <button 
+              onClick={() => startGame('normal')} 
+              className="mode-button normal-mode"
+            >
+              <span className="mode-icon">🌍</span>
+              <span className="mode-title">通常モード</span>
+              <span className="mode-desc">地球の重力でプレイ</span>
+            </button>
+            <button 
+              onClick={() => startGame('moon')} 
+              className="mode-button moon-mode"
+            >
+              <span className="mode-icon">🌙</span>
+              <span className="mode-title">月面モード</span>
+              <span className="mode-desc">低重力でふわふわプレイ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="game-container">
+    <div className={`game-container ${gameMode === 'moon' ? 'moon-mode' : ''}`}>
       <div className="game-header">
+        <div className="mode-indicator">
+          {gameMode === 'moon' ? '🌙 月面モード' : '🌍 通常モード'}
+        </div>
         <div className="score">スコア: {score}</div>
         <button onClick={resetGame} className="reset-button">リセット</button>
       </div>
       
       <div className="game-wrapper">
+        {gameMode === 'moon' && (
+          <div className="stars"></div>
+        )}
         {canDrop && !gameOver && (
           <div 
             className="next-ball-preview" 

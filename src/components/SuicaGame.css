@@ -110,3 +110,169 @@
 .game-over button:hover {
   background-color: #2980b9;
 }
+
+/* Mode Selection Screen */
+.mode-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+}
+
+.mode-selection h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+  color: #333;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.mode-selection h2 {
+  font-size: 24px;
+  margin-bottom: 40px;
+  color: #666;
+}
+
+.mode-buttons {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mode-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 40px;
+  background: white;
+  border: 3px solid transparent;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  min-width: 200px;
+}
+
+.mode-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+}
+
+.mode-icon {
+  font-size: 64px;
+  margin-bottom: 15px;
+}
+
+.mode-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.mode-desc {
+  font-size: 14px;
+  color: #666;
+}
+
+.normal-mode:hover {
+  border-color: #4CAF50;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+}
+
+.moon-mode:hover {
+  border-color: #9C27B0;
+  background: linear-gradient(135deg, #1a1a3e 0%, #2d2d5e 100%);
+}
+
+.moon-mode:hover .mode-title,
+.moon-mode:hover .mode-desc {
+  color: #fff;
+}
+
+/* Mode Indicator */
+.mode-indicator {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 5px 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+}
+
+/* Moon Mode Styles */
+.game-container.moon-mode {
+  background: linear-gradient(135deg, #0a0a2e 0%, #1a1a3e 100%);
+}
+
+.game-container.moon-mode .game-header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.game-container.moon-mode .score,
+.game-container.moon-mode .mode-indicator {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.game-container.moon-mode .reset-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.game-container.moon-mode .reset-button:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.game-container.moon-mode .game-canvas-container {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 30px rgba(150, 100, 255, 0.4);
+}
+
+/* Stars Animation for Moon Mode */
+.stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.stars::before,
+.stars::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  box-shadow: 
+    100px 100px white, 200px 50px white, 300px 150px white,
+    400px 80px white, 500px 200px white, 150px 250px white,
+    250px 300px white, 350px 350px white, 450px 400px white,
+    50px 450px white, 550px 100px white, 80px 180px white,
+    180px 380px white, 280px 280px white, 380px 180px white,
+    480px 480px white, 520px 320px white, 420px 220px white,
+    320px 420px white, 220px 120px white, 120px 320px white;
+  animation: twinkle 3s infinite;
+}
+
+.stars::after {
+  animation-delay: 1.5s;
+  box-shadow: 
+    50px 150px white, 150px 100px white, 250px 200px white,
+    350px 50px white, 450px 250px white, 100px 300px white,
+    200px 350px white, 300px 400px white, 400px 450px white,
+    500px 50px white, 550px 150px white, 130px 230px white,
+    230px 330px white, 330px 130px white, 430px 430px white,
+    530px 230px white, 470px 370px white, 370px 270px white,
+    270px 470px white, 170px 170px white, 70px 370px white;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
